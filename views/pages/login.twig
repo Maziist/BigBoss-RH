@@ -1,0 +1,81 @@
+{% extends "../layouts/base.twig" %}
+
+{% block style %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/assets/css/login.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    Connexion
+{% endblock %}
+
+{% block main %}
+    <main>
+        <section class="login">
+            <h1>Connexion</h1>
+            <form id="chooseLoginForm">
+                <label for="type">Type de connexion</label>
+                <select name="type" id="type" required>
+                    <option value="">Sélectionnez un type de connexion</option>
+                    <option value="company">Entreprise</option>
+                    <option value="employe">Employé</option>
+                </select>
+            </form>
+
+            <form id="companyLoginForm" class="hidden" action="/login" method="post">
+                <h2>Connexion Entreprise</h2>
+                <input type="hidden" name="type" value="company">
+                <label for="companyEmail">Email</label>
+                <input type="email" name="email" id="companyEmail" required>
+
+                <label for="companyPassword">Mot de passe</label>
+                <input type="password" name="password" id="companyPassword" required>
+
+                {% if error and error.password %}
+                    <p class="error-message">{{ error.password }}</p>
+                {% endif %}
+
+                <button type="submit" class="submit-button">Se connecter</button>
+            </form>
+
+            <form id="employeLoginForm" class="hidden" action="/login" method="post">
+                <h2>Connexion Employé</h2>
+                <input type="hidden" name="type" value="employe">
+                <label for="employeEmail">Email</label>
+                <input type="email" name="email" id="employeEmail" required>
+
+                <label for="employePassword">Mot de passe</label>
+                <input type="password" name="password" id="employePassword" required>
+
+                {% if error and error.password %}
+                    <p class="error-message">{{ error.password }}</p>
+                {% endif %}
+
+                <button type="submit" class="submit-button">Se connecter</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('type').addEventListener('change', function () {
+            const companyLoginForm = document.getElementById('companyLoginForm');
+            const employeLoginForm = document.getElementById('employeLoginForm');
+
+            if (this.value === 'company') {
+                companyLoginForm.classList.remove('hidden');
+                employeLoginForm.classList.add('hidden');
+            } else if (this.value === 'employe') {
+                companyLoginForm.classList.add('hidden');
+                employeLoginForm.classList.remove('hidden');
+            } else {
+                companyLoginForm.classList.add('hidden');
+                employeLoginForm.classList.add('hidden');
+            }
+        });
+    </script>
+{% endblock %}

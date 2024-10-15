@@ -1,0 +1,347 @@
+{% extends "..\layouts\base.twig" %}
+
+{% block style %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/assets/css/company.css">
+	<style>
+		.hidden {
+			display: none;
+		}
+	</style>
+{% endblock %}
+{% block title %}
+    Tableau de bord de la Compagny
+{% endblock %}
+{% block main %}
+	<h1>Bienvenue,
+		<span>{{ company.name }}</span></h1>
+
+	<section class="employeContainer">
+		<h2>Employés</h2>
+		<div id="employeList">
+			{% for employe in employes %}
+				<div class="employe-card">
+					<h3>{{ employe.firstname }}
+						{{ employe.lastname }}</h3>
+					{% if employe.avatar %}
+						<img src="/{{ employe.avatar }}" alt="Photo de {{ employe.firstname }}" class="employe-avatar">
+					{% else %}
+						<img src="/assets/images/default-avatar.png" alt="Photo par défaut" class="employe-avatar">
+					{% endif %}
+
+					<p>Email:
+						{{ employe.email }}</p>
+					<p>Fonction:
+						{{ employe.fonction }}</p>
+					{% if employe.ordinateur %}
+						<p>Ordinateur assigné:
+							{{ employe.ordinateur.macAddress }}
+							({{ employe.ordinateur.modele }})
+						</p>
+					{% else %}
+						<p>Aucun ordinateur assigné</p>
+					{% endif %}
+					<a href="/editEmploye/{{ employe.id }}">Modifier</a>
+					<a href="/deleteEmploye/{{ employe.id }}" method="POST" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?');">Supprimer</a>
+
+					<!-- Afficher les blâmes de l'employé -->
+					<h4>Blâmes</h4>
+					{% if employe.blames %}
+						<ul>
+							{% for blame in employe.blames %}
+								<li>{{ blame.description }}
+									({{ blame.date | date('Y-m-d H:i:s') }})</li>
+							{% endfor %}
+						</ul>
+					{% else %}
+						<p>Aucun blâme</p>
+					{% endif %}
+				</div>
+			{% endfor %}
+		</div>
+		<button onclick="toggleForm('employeForm')">Ajouter un employé</button>
+		<div id="employeForm" class="hidden">
+			<form action="/addEmploye" method="post" enctype="multipart/form-data" onsubmit="return addEmploye(event)">
+				<label for="lastname">Nom</label>
+				<input type="text" name="lastname" id="lastname" required>
+
+				<label for="firstname">Prénom</label>
+				<input type="text" name="firstname" id="firstname" required>
+
+				<label for="age">Age</label>
+				<input type="number" name="age" id="age" required>
+
+				<div class="radio-group">
+					<label>Sexe</label>
+					<input type="radio" id="sexe-masculin" name="sexe" value="Masculin" checked>
+					<label for="sexe-masculin">Masculin</label>
+					<input type="radio" id="sexe-feminin" name="sexe" value="Feminin">
+					<label for="sexe-feminin">Feminin</label>
+					<input type="radio" id="sexe-autre" name="sexe" value="Autre">
+					<label for="sexe-autre">Autre</label>
+				</div>
+
+				<label for="email">Email</label>
+				<input type="email" name="email" id="email" required>
+
+				<label for="fonction">Fonction</label>
+				<input type="text" name="fonction" id="fonction" required>
+
+				<label for="password">Mot de passe</label>
+				<input type="password" name="password" id="password" required>
+
+				<label for="avatar">Photo de profil</label>
+				<input type="file" name="avatar" id="avatar" accept="image/*">
+
+				<button type="submit" class="submit-button">Ajouter</button>
+			</form>
+		</div>
+	</section>
+
+	<section class="ordinateursContainer">
+		<h2 class="ordiName">Ordinateurs</h2>
+		<div id="ordinateurList">
+			{% for ordinateur in ordinateurs %}
+				<div class="ordinateur-card">
+					<h3>{{ ordinateur.modele }}</h3>
+					<p>MAC:
+						{{ ordinateur.macAddress }}</p>
+					<p>Utilisateur:
+						{% if ordinateur.employe %}
+							{{ ordinateur.employe.firstname }}
+							{{ ordinateur.employe.lastname }}
+						{% else %}
+							Non assigné
+						{% endif %}
+					</p>
+					<div>
+						<a href="/editOrdinateur/{{ ordinateur.id }}">Modifier</a>
+                  <a href="/deleteOrdinateur/{{ ordinateur.id }}" class="text-red-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet ordinateur ?');">Supprimer</a>
+					</div>
+					{% if ordinateur.isDefective %}
+						<span class="defective">Hors-service depuis
+							{{ ordinateur.defectiveAt | date('Y-m-d H:i:s') }}</span>
+					{% endif %}
+				</div>
+			{% endfor %}
+		</div>
+		<button onclick="toggleForm('ordinateurForm')">Ajouter un ordinateur</button>
+		<div id="ordinateurForm" class="hidden">
+			<form action="/addOrdinateur" method="post" onsubmit="return addOrdinateur(event)">
+				<label for="modele">Modèle</label>
+				<input type="text" name="modele" id="modele" required>
+				<label for="macAddress">Adresse MAC</label>
+				<input type="text" name="macAddress" id="macAddress" required>
+
+				<label for="isDefective">État</label>
+				<select name="isDefective" id="isDefective">
+					<option value="false">Fonctionnel</option>
+					<option value="true">Défectueux</option>
+				</select>
+
+				<button type="submit" class="submit-button">Ajouter</button>
+			</form>
+		</div>
+	</section>
+
+	<section class="associate-employe-computer">
+		<h2>Associer un Employé à un Ordinateur</h2>
+		<form action="/assignOrdinateur" method="post">
+			<div>
+				<label for="employe">Employé</label>
+				<select id="employe" name="employeId">
+					<option value="">Sélectionner un employé</option>
+					{% for employe in employes %}
+						<option value="{{ employe.id }}">{{ employe.lastname }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="computer">Ordinateur</label>
+				<select id="computer" name="ordinateurId">
+					<option value="">Sélectionner un ordinateur</option>
+					{% for ordinateur in ordinateurs %}
+						<option value="{{ ordinateur.id }}">{{ ordinateur.macAddress }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button type="submit">Associer</button>
+		</form>
+	</section>
+
+	<section class="assignBlame">
+		<h2>Assigner un Blâme à un Employé</h2>
+		<form action="/addBlame" method="post">
+			<div>
+				<label for="employe">Employé</label>
+				<select id="employeBlame" name="employeId">
+					<option value="">Sélectionner un employé</option>
+					{% for employe in employes %}
+						<option value="{{ employe.id }}">{{ employe.lastname }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="description">Description du blâme</label>
+				<textarea id="description" name="description" required></textarea>
+			</div>
+			<button type="submit">Assigner</button>
+		</form>
+	</section>
+
+
+	<section class="taskContainer">
+  <h2>Tâches</h2>
+  <div id="taskList">
+    {% if tasks %}
+      {% for task in tasks %}
+        <div class="task-card">
+          <h3>{{ task.title }}</h3>
+          <p>{{ task.description }}</p>
+          <p>Date limite: {{ task.dueDate | date('d/m/Y') }}</p>
+          <p>Statut: 
+            {% if task.status == 'A_FAIRE' %}
+              À faire
+            {% elseif task.status == 'EN_COURS' %}
+              En cours
+            {% elseif task.status == 'TERMINEE' %}
+              Terminée
+            {% elseif task.status == 'ECHEANCE_DEPASSEE' %}
+              Échéance dépassée
+            {% endif %}
+          </p>
+          <p>Assignée à: {{ task.employe.firstname }} {{ task.employe.lastname }}</p>
+          <a href="/editTask/{{ task.id }}">Modifier</a>
+          <a href="/deleteTask/{{ task.id }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');">Supprimer</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Aucune tâche créée</p>
+    {% endif %}
+  </div>
+
+  <button onclick="toggleForm('taskForm')">Ajouter une tâche</button>
+
+  <div id="taskForm" class="hidden">
+    <form action="/addTask" method="post">
+      <label for="title">Titre</label>
+      <input type="text" name="title" id="title" required>
+
+      <label for="description">Description</label>
+      <textarea name="description" id="descriptionTask" required></textarea>
+
+      <label for="dueDate">Date d'échéance</label>
+      <input type="date" name="dueDate" id="dueDate" required>
+
+      <label for="employeId">Employé</label>
+      <select name="employeId" id="employeId" required>
+        {% for employe in employes %}
+          <option value="{{ employe.id }}">{{ employe.firstname }} {{ employe.lastname }}</option>
+        {% endfor %}
+      </select>
+
+      <input type="hidden" name="status" value="A_FAIRE">
+
+      <button type="submit">Ajouter la tâche</button>
+    </form>
+  </div>
+</section>
+
+    <section class="skillContainer">
+      <h2>Formation</h2>
+      <div id="skillList">
+    {% if skills %}
+      {% for skill in skills %}
+        <div class="skill-card">
+          <h3>{{ skill.name }}</h3>
+          <p>Date de début: {{ skill.startDate | date('d/m/Y') }}</p>
+          <p>Date de fin: {{ skill.endDate | date('d/m/Y') }}</p>
+          <h4>Employés assignés:</h4>
+          <ul>
+            {% if skill.employe %}
+              {% for employe in skill.employe %}
+                <li>{{ employe.firstname }} {{ employe.lastname }}</li>
+              {% endfor %}
+            {% else %}
+              <li>Aucun employé assigné</li>
+            {% endif %}
+          </ul>
+          <a href="/editSkill/{{ skill.id }}">Modifier</a>
+          <a href="/deleteSkill/{{ skill.id }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?');">Supprimer</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Aucune formation n'a été ajoutée.</p>
+    {% endif %}
+  </div>
+<button onclick="toggleForm('skillForm')">Ajouter une formation</button>
+      <div id="skillForm" class="hidden">
+         <form action="/addSkill" method="post">
+            <label for="name">Nom de la formation</label>
+            <input type="text" name="name" id="nameSkill" required>
+
+            <label for="startDate">Date de début</label>
+            <input type="date" name="startDate" id="startDate" required>
+
+            <label for="endDate">Date de fin</label>
+            <input type="date" name="endDate" id="endDate" required>
+
+            <button type="submit">Ajouter la formation</button>
+         </form>
+      </div>
+	  </section>
+
+   <section class="assignSkill">
+      <h2>Assigner une formation à un Employé</h2>
+      <form action="/assignSkill" method="post">
+         <div>
+            <label for="employe">Employé</label>
+            <select id="employeSkill" name="employeId">
+               <option value="">Sélectionner un employé</option>
+               {% for employe in employes %}
+                  <option value="{{ employe.id }}">{{ employe.firstname }} {{ employe.lastname }}</option>
+               {% endfor %}
+            </select>
+         </div>
+         <div>
+            <label for="skill">Formation</label>
+            <select id="skill" name="skillId">
+               <option value="">Sélectionner une Formation</option>
+               {% for skill in skills %}
+                  <option value="{{ skill.id }}">{{ skill.name }}</option>
+               {% endfor %}
+            </select>
+         </div>
+         <button type="submit">Assigner</button>
+      </form>
+   </section>
+
+   <section class="leaveRequestContainer">
+    <h2>Demandes de congé</h2>
+    <div id="leaveRequestList">
+        {% for request in leaveRequests %}
+            <div class="leave-request-card">
+                <h3>Demande de {{ request.employe.firstname }} {{ request.employe.lastname }}</h3>
+                <p>Du: {{ request.startDate | date('d/m/Y') }}</p>
+                <p>Au: {{ request.endDate | date('d/m/Y') }}</p>
+                <p>Raison: {{ request.reason }}</p>
+                <p>Statut: {{ request.status }}</p>
+                {% if request.status == 'EN_ATTENTE' %}
+                    <form action="/validateLeave/{{ request.id }}" method="post">
+                        <button type="submit" name="action" value="APPROUVE">Approuver</button>
+                        <button type="submit" name="action" value="REFUSE">Refuser</button>
+                    </form>
+                    <form action="/proposeAlternative/{{ request.id }}" method="post">
+                        <label for="alternativeStartDate">Nouvelle date de début:</label>
+                        <input type="date" id="alternativeStartDate" name="alternativeStartDate" required>
+                        <label for="alternativeEndDate">Nouvelle date de fin:</label>
+                        <input type="date" id="alternativeEndDate" name="alternativeEndDate" required>
+                        <button type="submit">Proposer des dates alternatives</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</section>
+	<script src="/assets/js/toggleForm.js"></script>
+{% endblock %}

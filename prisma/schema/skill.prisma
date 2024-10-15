@@ -1,0 +1,9 @@
+model Skill {
+  id        Int       @id @default(autoincrement())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  company   Company   @relation(fields: [companyId], references: [id])
+  companyId Int
+  employe   Employe[]
+}

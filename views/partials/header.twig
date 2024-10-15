@@ -1,0 +1,30 @@
+{% block style %}
+	<link rel="stylesheet" href="/assets/css/header.css">
+{% endblock %}
+
+<header>
+	<div>
+		<img src="/assets/img/Logo.png" alt="Logo">
+		<h1>BigBoss</h1>
+	</div>
+	<nav>
+		<ul>
+			{% if company or employe %}
+				<li>
+					<a href="/">Accueil</a>
+				</li>
+				<li>
+					<a href="/logout">Déconnexion</a>
+				</li>
+
+			{% else %}
+				<li>
+					<a href="/register">Inscription</a>
+				</li>
+				<li>
+					<a href="/login">Connexion</a>
+				</li>
+			{% endif %}
+		</ul>
+	</nav>
+</header>

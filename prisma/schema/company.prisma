@@ -1,0 +1,15 @@
+model Company {
+  id            Int       @id @default(autoincrement())
+  name          String
+  siret         String    @unique
+  director      String
+  email         String    @unique
+  password      String
+  employes      Employe[]
+  ordinateurs   Ordinateur[]
+  blames        Blame[]
+  tasks         Task[]
+  leaveRequests LeaveRequest[]
+skills    Skill[]
+
+}

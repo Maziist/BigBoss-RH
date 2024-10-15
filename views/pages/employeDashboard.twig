@@ -1,0 +1,161 @@
+{% extends "..\layouts\base.twig" %}
+
+{% block style %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/assets/css/company.css">
+	<style>
+		.hidden {
+			display: none;
+		}
+	</style>
+{% endblock %}
+
+{% block title %}
+	Tableau de bord Employé
+{% endblock %}
+
+{% block main %}
+	<h1>Bienvenue,
+		<span>{{ employe.firstname }}
+		{{ employe.lastname }}</span></h1>
+
+	<section class="profile">
+		<h2>Profil</h2>
+		{% if employe.avatar %}
+			<img src="/{{ employe.avatar }}" alt="Photo de {{ employe.firstname }}" class="employe-avatar">
+		{% else %}
+			<img src="/assets/images/default-avatar.png" alt="Photo par défaut" class="employe-avatar">
+		{% endif %}
+
+		<p>Email:
+			{{ employe.email }}</p>
+		<p>Fonction:
+			{{ employe.fonction }}</p>
+		<p>Âge:
+			{{ employe.age }}</p>
+		<p>Sexe:
+			{{ employe.sexe }}</p>
+	</section>
+
+	<section class="ordinateur">
+		<h2>Ordinateur assigné</h2>
+		{% if employe.ordinateur %}
+			<p>Modèle:
+				{{ employe.ordinateur.modele }}</p>
+			<p>Adresse MAC:
+				{{ employe.ordinateur.macAddress }}</p>
+			<form action="/reportDefectiveComputer" method="post" style="display:inline;">
+				<input type="hidden" name="ordinateurId" value="{{ employe.ordinateur.id }}">
+				<button type="submit">Signaler comme défectueux</button>
+			</form>
+		{% else %}
+			<p>Aucun ordinateur assigné</p>
+		{% endif %}
+	</section>
+
+	<section class="tasks">
+    <h2>Tâches</h2>
+    {% if employe.tasks %}
+        <ul>
+            {% for task in employe.tasks %}
+                <li>
+                    <h3>{{ task.title }}</h3>
+                    <p>{{ task.description }}</p>
+                    <p>Date limite: {{ task.dueDate | date('d/m/Y') }}</p>
+                    <p>Statut: 
+                        {% if task.status == 'ECHEANCE_DEPASSEE' %}
+                            Échéance dépassée
+                        {% else %}
+                            {{ task.status }}
+                        {% endif %}
+                    </p>
+                    {% if task.status == 'A_FAIRE' or task.status == 'EN_COURS' %}
+                        <form action="/updateTaskStatus" method="post" style="display:inline;">
+                            <input type="hidden" name="taskId" value="{{ task.id }}">
+                            {% if task.status == 'A_FAIRE' %}
+                                <button type="submit" name="status" value="EN_COURS">Marquer comme en cours</button>
+                            {% endif %}
+                            <button type="submit" name="status" value="TERMINEE">Marquer comme terminée</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune tâche assignée</p>
+    {% endif %}
+</section>
+
+	<section class="leaveRequests">
+		<h2>Demandes de congé</h2>
+    {% if employe.leaveRequests %}
+        <ul>
+            {% for request in employe.leaveRequests %}
+                <li>
+                    <p>Du: {{ request.startDate | date('d/m/Y') }}</p>
+                    <p>Au: {{ request.endDate | date('d/m/Y') }}</p>
+                    <p>Raison: {{ request.reason }}</p>
+                    <p>Statut: {{ request.status }}</p>
+                    
+                    {% if request.status == 'ALTERNATIVE_PROPOSEE' %}
+                        <p>Alternative proposée :</p>
+                        <p>Du: {{ request.alternativeStartDate | date('d/m/Y') }}</p>
+                        <p>Au: {{ request.alternativeEndDate | date('d/m/Y') }}</p>
+                        <form action="/respondToAlternative/{{ request.id }}" method="post">
+                            <button type="submit" name="response" value="approve">Approuver</button>
+                            <button type="submit" name="response" value="reject">Rejeter</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune demande de congé</p>
+    {% endif %}
+		<h3>Faire une demande de congé</h3>
+		<form action="/requestLeave" method="post">
+			<label for="startDate">Date de début</label>
+			<input type="date" name="startDate" id="startDate" required>
+
+			<label for="endDate">Date de fin</label>
+			<input type="date" name="endDate" id="endDate" required>
+
+			<label for="reason">Raison</label>
+			<textarea name="reason" id="reason" required></textarea>
+
+			<button type="submit">Envoyer la demande</button>
+		</form>
+
+	</section>
+
+
+	<section class="skills">
+		<h2>Compétences</h2>
+		{% if employe.skills %}
+			<ul>
+				{% for skill in employe.skills %}
+					<li>{{ skill.name }}</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<p>Aucune compétence enregistrée</p>
+		{% endif %}
+	</section>
+
+	<section class="blames">
+		<h2>Blâmes</h2>
+		{% if employe.blames %}
+			<ul>
+				{% for blame in employe.blames %}
+					<li>
+						<p>{{ blame.description }}</p>
+						<p>Date:
+							{{ blame.date | date('d/m/Y') }}</p>
+					</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<p>Aucun blâme enregistré</p>
+		{% endif %}
+	</section>
+{% endblock %}

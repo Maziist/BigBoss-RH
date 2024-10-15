@@ -1,0 +1,18 @@
+model Employe {
+  id            Int            @id @default(autoincrement())
+  firstname     String
+  lastname      String
+  age           Int
+  sexe          String
+  avatar        String?        @db.Text
+  email         String         @unique
+  password      String
+  fonction      String
+  company       Company        @relation(fields: [companyId], references: [id])
+  companyId     Int
+  ordinateur    Ordinateur?
+  blames        Blame[]
+  leaveRequests LeaveRequest[]
+  skills        Skill[]
+  tasks         Task[]
+}

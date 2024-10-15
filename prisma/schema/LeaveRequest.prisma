@@ -1,0 +1,13 @@
+model LeaveRequest {
+  id                   Int      @id @default(autoincrement())
+  employe              Employe  @relation(fields: [employeId], references: [id])
+  employeId            Int
+  startDate            DateTime
+  endDate              DateTime
+  reason               String
+  status               String   @default("EN_ATTENTE")
+  alternativeStartDate DateTime?
+  alternativeEndDate   DateTime?
+  company              Company  @relation(fields: [companyId], references: [id])
+  companyId            Int
+}

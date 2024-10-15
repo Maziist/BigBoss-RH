@@ -1,0 +1,98 @@
+{% extends "..\layouts\base.twig" %}
+
+{% block style %}
+{{ parent() }}
+<link rel="stylesheet" href="/assets/css/company.css">
+<style>
+  .hidden {
+    display: none;
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+  {% if formType == 'employe' %}
+    <h1>Modifier l'employé</h1>
+    <form action="/updateEmploye" method="post">
+      <input type="hidden" name="employeId" value="{{ employe.id }}">
+      <label for="firstname">Prénom</label>
+      <input type="text" name="firstname" id="firstname" value="{{ employe.firstname }}" required>
+      <label for="lastname">Nom</label>
+      <input type="text" name="lastname" id="lastname" value="{{ employe.lastname }}" required>
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" value="{{ employe.email }}" required>
+      <label for="fonction">Fonction</label>
+      <input type="text" name="fonction" id="fonction" value="{{ employe.fonction }}" required>
+      <label for="age">Age</label>
+      <input type="number" name="age" id="age" value="{{ employe.age }}" required>
+      <div class="radio-group">
+        <label>Sexe</label>
+        <input type="radio" id="sexeMasculin" name="sexe" value="Masculin" {% if employe.sexe == 'Masculin' %}checked{% endif %}>
+        <label for="sexeMasculin">Masculin</label>
+        <input type="radio" id="sexeFeminin" name="sexe" value="Feminin" {% if employe.sexe == 'Feminin' %}checked{% endif %}>
+        <label for="sexeFeminin">Feminin</label>
+        <input type="radio" id="sexeAutre" name="sexe" value="Autre" {% if employe.sexe == 'Autre' %}checked{% endif %}>
+        <label for="sexeAutre">Autre</label>
+      </div>
+      <button type="submit">Mettre à jour</button>
+    </form>
+
+  {% elseif formType == 'ordinateur' %}
+    <h1>Modifier l'Ordinateur</h1>
+    <form action="/updateOrdinateur" method="post">
+      <input type="hidden" name="ordinateurId" value="{{ ordinateur.id }}">
+      <label for="modele">Modèle</label>
+      <input type="text" name="modele" id="modele" value="{{ ordinateur.modele }}" required>
+      <label for="macAddress">Adresse MAC</label>
+      <input type="text" name="macAddress" id="macAddress" value="{{ ordinateur.macAddress }}" required>
+      <label for="isDefective">État</label>
+      <select name="isDefective" id="isDefective">
+        <option value="false" {% if not ordinateur.isDefective %}selected{% endif %}>Fonctionnel</option>
+        <option value="true" {% if ordinateur.isDefective %}selected{% endif %}>Défectueux</option>
+      </select>
+      <button type="submit">Mettre à jour</button>
+    </form>
+
+  {% elseif formType == 'task' %}
+    <h1>Modifier la tâche</h1>
+    <form action="/updateTask" method="post">
+      <input type="hidden" name="taskId" value="{{ task.id }}">
+      <label for="title">Titre</label>
+      <input type="text" name="title" id="title" value="{{ task.title }}" required>
+      <label for="description">Description</label>
+      <textarea name="description" id="description" required>{{ task.description }}</textarea>
+      <label for="dueDate">Date d'échéance</label>
+      <input type="date" name="dueDate" id="dueDate" value="{{ task.dueDate|date('Y-m-d') }}" required>
+      <label for="status">Statut</label>
+      <select name="status" id="status" required>
+        <option value="A_FAIRE" {% if task.status == 'A_FAIRE' %}selected{% endif %}>À faire</option>
+        <option value="EN_COURS" {% if task.status == 'EN_COURS' %}selected{% endif %}>En cours</option>
+        <option value="TERMINE" {% if task.status == 'TERMINE' %}selected{% endif %}>Terminé</option>
+      </select>
+      <label for="employeId">Employé assigné</label>
+      <select name="employeId" id="employeId" required>
+        {% for employe in employes %}
+          <option value="{{ employe.id }}" {% if employe.id == task.employeId %}selected{% endif %}>
+            {{ employe.firstname }} {{ employe.lastname }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit">Mettre à jour la tâche</button>
+    </form>
+
+  {% elseif formType == 'skill' %}
+    <h1>Modifier la formation</h1>
+    <form action="/updateSkill/{{ skill.id }}" method="post">
+      <label for="name">Nom de la formation</label>
+      <input type="text" name="name" id="name" value="{{ skill.name }}" required>
+      <label for="startDate">Date de début</label>
+      <input type="date" name="startDate" id="startDate" value="{{ skill.startDate | date('Y-m-d') }}" required>
+      <label for="endDate">Date de fin</label>
+      <input type="date" name="endDate" id="endDate" value="{{ skill.endDate | date('Y-m-d') }}" required>
+      <button type="submit">Mettre à jour la formation</button>
+    </form>
+
+  {% else %}
+    <h1>Erreur : Type de formulaire non reconnu</h1>
+  {% endif %}
+{% endblock %}

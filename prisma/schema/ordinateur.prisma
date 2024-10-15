@@ -1,0 +1,11 @@
+model Ordinateur {
+  id          Int       @id @default(autoincrement())
+  modele      String
+  macAddress  String
+  isDefective Boolean
+  defectiveAt DateTime?
+  employe     Employe?  @relation(fields: [employeId], references: [id])
+  employeId   Int?      @unique
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   Int
+}

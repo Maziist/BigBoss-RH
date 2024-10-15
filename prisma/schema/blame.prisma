@@ -1,0 +1,9 @@
+model Blame {
+  id        Int     @id @default(autoincrement())
+  employe   Employe @relation(fields: [employeId], references: [id])
+  employeId Int
+  company    Company @relation(fields: [companyId], references: [id])
+  companyId Int
+  description  String     @db.Text
+  date         DateTime   @default(now())
+}

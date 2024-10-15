@@ -1,0 +1,35 @@
+{% extends "../layouts/base.twig" %}
+{% block style %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/assets/css/login.css">
+{% endblock %}
+{% block title %}
+	<titre>Register</titre>
+{% endblock %}
+{% block main %}
+	<main>
+		<section class="register">
+			<h1>Register</h1>
+
+			<form action="/register" method="post">
+				<label for="text">Nom de l'entreprise</label>
+				<input type="text" name="name" id="name">
+				<label for="text">Numeros de siret</label>
+				<input type="text" name="siret" id="siret">
+				<label for="text">Nom du directeur</label>
+				<input type="text" name="director" id="director">
+				<label for="text">Email</label>
+				<input type="text" name="email" id="email">
+				<label for="text">Mot de passe</label>
+				<input type="password" name="password" id="password">
+				<label for="text">Confirmation du mot de passe</label>
+				<input type="password" name="confirmPassword" id="confirmPassword">
+				{% if error %}
+					<p>{{error.confirmPassword}}</p>
+				{% endif %}
+				<button class="submit-button">S'inscrire</button>
+			</form>
+			<a href="/login">Vous avez déjà un compte ?</a>
+        </section>
+    </main>
+{% endblock %}

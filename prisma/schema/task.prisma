@@ -1,0 +1,11 @@
+model Task {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  dueDate      DateTime
+  status       TaskStatus
+  company      Company     @relation(fields: [companyId], references: [id])
+  companyId    Int
+  employe      Employe     @relation(fields: [employeId], references: [id])
+  employeId    Int
+}

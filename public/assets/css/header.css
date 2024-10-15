@@ -1,0 +1,58 @@
+body {
+    margin: 0;
+    padding-top: 60px; /* Ajustez cette valeur en fonction de la hauteur de votre header */
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 60px; /* Ajustez cette valeur selon vos besoins */
+}
+
+header div {
+    display: flex;
+    align-items: center;
+}
+
+header img {
+    width: 40px;
+    height: auto;
+    margin-right: 1rem;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+}
+
+nav ul {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    margin-left: 1.5rem;
+}
+
+nav a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #007bff;
+}

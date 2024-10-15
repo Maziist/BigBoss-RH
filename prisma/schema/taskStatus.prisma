@@ -1,0 +1,6 @@
+enum TaskStatus {
+  A_FAIRE
+  EN_COURS
+  TERMINEE
+  ECHEANCE_DEPASSEE
+}
