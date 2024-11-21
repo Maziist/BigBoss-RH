@@ -6,6 +6,8 @@ const session = require('express-session');
 const path = require('path');
 const app = express();
 
+
+require('dotenv').config();
 app.use(express.static('./public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -23,6 +25,6 @@ app.use(employeRouter);
 // Démarrer le planificateur de tâches
 scheduleTaskUpdates();
 
- app.listen(3000, () => {
+ app.listen(process.env.PORT, () => {
     console.log('Connecté sur le port 3000'); 
 });
