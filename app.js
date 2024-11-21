@@ -19,12 +19,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Configuration des routes
-app.use(companyRouter);
-app.use(employeRouter);
-
+app.use('/',companyRouter);
+app.use('/',employeRouter);
+app.get('*', (req, res) => {
+    res.redirect('/login');
+});
 // Démarrer le planificateur de tâches
 scheduleTaskUpdates();
 
  app.listen(process.env.PORT, () => {
-    console.log('Connecté sur le port 3000'); 
+    console.log('Connecté sur le port 3010'); 
 });
